@@ -1,0 +1,21 @@
+#!/bin/bash
+
+mkdir -p /dev/net
+if [ ! -c /dev/net/tun ]; then
+    mknod /dev/net/tun c 10 200
+fi
+
+if [ ! -f /pki/dh/openvpn ]; then
+    openssl gendh -out /pki/dh/openvpn -2 2048
+fi
+
+# allow access from access-points to controller
+iptables -A FORWARD -i tun0 -d $CONTROLLER_IP -j ACCEPT
+
+# allow access from access-points to radius
+iptables -A FORWARD -i tun0 -d $RADIUS_IP -j ACCEPT
+
+# drop everything coming out of signaling network
+iptables -A FORWARD -i tun0 -j DROP
+
+exec openvpn --config /etc/openvpn/server.conf

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+curl -X POST -m 1 http://controller/access-points/$common_name/connection-status/$1
+exit 0
