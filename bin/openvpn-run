@@ -18,4 +18,5 @@ iptables -A FORWARD -i tun0 -d $RADIUS_IP -j ACCEPT
 # drop everything coming out of signaling network
 iptables -A FORWARD -i tun0 -j DROP
 
+
 exec openvpn --config /etc/openvpn/server.conf
