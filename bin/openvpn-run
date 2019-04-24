@@ -15,6 +15,11 @@ iptables -A FORWARD -i tun0 -d $CONTROLLER_IP -j ACCEPT
 # allow access from access-points to radius
 iptables -A FORWARD -i tun0 -d $RADIUS_IP -j ACCEPT
 
+# allow access from access-points to security
+SECURITY_IP=${SECURITY_IP:-172.28.1.17}
+SECURITY_PORT=${SECURITY_PORT:-3000}
+iptables -A FORWARD -i tun0 -d $SECURITY_IP -p udp --dport $SECURITY_PORT -j ACCEPT
+
 # drop everything coming out of signaling network
 iptables -A FORWARD -i tun0 -j DROP
 
