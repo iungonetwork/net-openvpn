@@ -18,5 +18,34 @@ iptables -A FORWARD -i tun0 -d $RADIUS_IP -j ACCEPT
 # drop everything coming out of signaling network
 iptables -A FORWARD -i tun0 -j DROP
 
+SIGNALING_NETWORK=${SIGNALING_NETWORK:-10.8.0.0}
+SIGNALING_NETWORK_MASK=${SIGNALING_NETWORK_MASK:-255.255.0.0}
+SERVICE_NETWORK=${SERVICE_NETWORK:-172.28.1.0}
+SERVICE_NETWORK_MASK=${SERVICE_NETWORK_MASK:-255.255.255.0}
+ROUTER=${ROUTER:-10.8.0.1}
+
+cat << EOF > /etc/openvpn/server.conf
+port 1194
+proto tcp
+dev tun
+ca /pki/ca.crt
+cert /pki/certs/server.crt
+key /pki/certs/server.key
+dh /pki/dh/openvpn
+topology subnet
+server $SIGNALING_NETWORK $SIGNALING_NETWORK_MASK
+client-config-dir /etc/openvpn/ccd
+cipher AES-256-CBC
+persist-key
+persist-tun
+verb 3
+crl-verify /pki/ca.crl
+management 0.0.0.0 7505
+keepalive 5 15
+script-security 3
+client-connect '/usr/local/bin/openvpn-hook connect'
+client-disconnect '/usr/local/bin/openvpn-hook disconnect'
+push "route $SERVICE_NETWORK $SERVICE_NETWORK_MASK $ROUTER 1"
+EOF
 
 exec openvpn --config /etc/openvpn/server.conf

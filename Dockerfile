@@ -6,8 +6,6 @@ RUN apk add --update openvpn openssl iptables bash curl && \
 ADD ./bin /usr/local/bin
 RUN chmod a+x /usr/local/bin/*
 
-COPY ./server.conf /etc/openvpn/server.conf
-
 VOLUME ["/pki", "/etc/openvpn/ccd"]
 
 EXPOSE 1194/tcp
